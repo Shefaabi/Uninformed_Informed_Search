@@ -38,8 +38,9 @@ down(cell(X, Y, _), NextCell, State, N):-
 search(Open, Closed, Goal,Board,N):-
     getBestState(Open, [CurrentState,Parent,G,H,F], _), % Step 1
     CurrentState = Goal, % Step 2
+    append(Closed, [[CurrentState,Parent,G,H,F]], NewClosed), % Step 5.1
     write("Search is complete!"), nl,
-    write(Closed), !.
+    write(NewClosed), !.
 
 search([], _, _, _,_) :-
     write("Search is complete!"), nl,
