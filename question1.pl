@@ -7,22 +7,17 @@
 % x = row
 % y = column
 
-
-
-
 move(CurrenCell, NextCell, State, N):-
     left(CurrenCell, NextCell, State, N); right(CurrenCell, NextCell, State, N);
     up(CurrenCell, NextCell, State, N); down(CurrenCell, NextCell, State, N).
 
-left(cell(X, Y, Color), NextCell, State, N):-
-    length(State,L),
-    M is L / N,
+left(cell(X, Y, _), NextCell, State, _):-
     NewY is Y - 1,
     NewY >= 0,
     member(cell(X, NewY, NextColor), State),
     NextCell = cell(X, NewY, NextColor).
 
-right(cell(X, Y, Color), NextCell, State, N):-
+right(cell(X, Y, _), NextCell, State, N):-
     length(State,L),
     M is L / N,
     NewY is Y + 1,
@@ -30,18 +25,14 @@ right(cell(X, Y, Color), NextCell, State, N):-
     member(cell(X, NewY, NextColor), State),
     NextCell = cell(X, NewY, NextColor).
 
-up(cell(X, Y, Color), NextCell, State, N):-
-    length(State,L),
-    M is L / N,
+up(cell(X, Y, _), NextCell, State, _):-
     NewX is X - 1,
     NewX >= 0,
     member(cell(NewX, Y, NextColor), State),
     NextCell = cell(NewX, Y, NextColor).
 
 
-down(cell(X, Y, Color), NextCell, State, N):-
-    length(State,L),
-    M is L / N,
+down(cell(X, Y, _), NextCell, State, N):-
     NewX is X + 1,
     NewX < N,
     member(cell(NewX, Y, NextColor), State),
@@ -62,7 +53,7 @@ cycle_check(X, Y, Color, [(X0,Y0)|Visited], VisitedCells) :-
     neighbor(X,Y , X0,Y0), !, % Next cell is the starting cell
     \+ (member((X1,Y1), [(X0, Y0)|Visited]), member([cell(X1,Y1,Color1),_], VisitedCells), Color \= Color1), % Ensure all cells in the cycle have the same color
      write("Cycle is found!"), nl,
-    write([(X0, Y0)|Visited]), nl.
+     write([(X0, Y0)|Visited]), nl.
 
 % Recursive case: Continue exploring neighboring cells
 cycle_check(X, Y, Color, [(X0,Y0)|Visited], VisitedCells) :-
@@ -83,7 +74,6 @@ neighbor(X, Y, X, Y1) :- Y1 is Y-1, Y1 >= 0.
 search(Open, Closed, Board, N):-
     getState(Open, [CurrentState,Parent], _), % Step 1 Pop a state from the open list so that it becomes the current state.
     cycle_of_same_color(Closed) ,!.
-    # printSolution([CurrentState,Parent], Closed).
 
 search([], _, _, _) :-
     write("Search is complete!"), nl,
@@ -115,13 +105,7 @@ addChildren(Children, Open, NewOpen):-
 getAllValidChildren(Node, Open, Closed, Children, Board, N):-
     findall(Next, getNextState(Node, Open, Closed, Next, Board, N), Children).
 
-% Implementation of printSolution to print the actual solution path
-# printSolution([State, null],_):-
-#     write(State), nl.
 
-# printSolution([State, Parent], Closed):-
-#     member([Parent, GrandParent], Closed),
-#     printSolution([Parent, GrandParent], Closed),
-#     write(State), nl.
+
 
 
