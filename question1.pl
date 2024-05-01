@@ -49,6 +49,7 @@ down(cell(X, Y, Color), NextCell, State, N):-
 
 % -------------------------------------
 % Rule to check if there is a cycle of the same color including 4 cells or more
+% Rule to check if there is a cycle where all cells have the same color
 cycle_of_same_color(VisitedCells) :-
     member([cell(X,Y,Color),_], VisitedCells), % Take a cell from the visited cells
     cycle_check(X, Y, Color, [(X,Y)], VisitedCells). % Start cycle check from this cell
@@ -58,15 +59,18 @@ cycle_check(X, Y, Color, [(X0,Y0)|Visited], VisitedCells) :-
     member([cell(X,Y,Color),_], VisitedCells), % Next cell is in visited cells
     length([(X0,Y0)|Visited], Length),
     Length >= 4, % Ensure cycle length is at least 4
-    (X,Y) = (X0,Y0). % Next cell is the starting cell
+    neighbor(X,Y , X0,Y0), !, % Next cell is the starting cell
+    \+ (member((X1,Y1), [(X0, Y0)|Visited]), member([cell(X1,Y1,Color1),_], VisitedCells), Color \= Color1), % Ensure all cells in the cycle have the same color
+     write("Cycle is found!"), nl,
+    write([(X0, Y0)|Visited]), nl.
 
 % Recursive case: Continue exploring neighboring cells
 cycle_check(X, Y, Color, [(X0,Y0)|Visited], VisitedCells) :-
     member([cell(X,Y,Color),_], VisitedCells), % Next cell is in visited cells
     neighbor(X0, Y0, X1, Y1), % Get neighboring cell
     member([cell(X1,Y1,_),_], VisitedCells),
-    \+ member((X1,Y1), Visited), % Ensure neighbor is not already visited
-    cycle_check(X, Y, Color, [(X1,Y1)|Visited], VisitedCells). % Recursively check the neighbor
+    \+member((X1,Y1), Visited), % Ensure neighbor is not already visited
+    cycle_check(X, Y, Color, [(X1,Y1),(X0,Y0)|Visited], VisitedCells). % Recursively check the neighbor
 
 
 % Rule to define neighbors of a cell (up, down, left, right)
@@ -78,10 +82,12 @@ neighbor(X, Y, X, Y1) :- Y1 is Y-1, Y1 >= 0.
 % [[cell(x,y,c), parent] ]
 search(Open, Closed, Board, N):-
     getState(Open, [CurrentState,Parent], _), % Step 1 Pop a state from the open list so that it becomes the current state.
-    cycle_of_same_color(Closed) ,
-    write("Cycle is found!"), !,
+    cycle_of_same_color(Closed) ,!.
+    # printSolution([CurrentState,Parent], Closed).
+
+search([], _, _, _) :-
     write("Search is complete!"), nl,
-    printSolution([CurrentState,Parent], Closed).
+    write("No Cycle is found!"), !.
 
 search(Open, Closed, Board, N):-
     getState(Open, CurrentNode, TmpOpen),
@@ -110,12 +116,12 @@ getAllValidChildren(Node, Open, Closed, Children, Board, N):-
     findall(Next, getNextState(Node, Open, Closed, Next, Board, N), Children).
 
 % Implementation of printSolution to print the actual solution path
-printSolution([State, null],_):-
-    write(State), nl.
+# printSolution([State, null],_):-
+#     write(State), nl.
 
-printSolution([State, Parent], Closed):-
-    member([Parent, GrandParent], Closed),
-    printSolution([Parent, GrandParent], Closed),
-    write(State), nl.
+# printSolution([State, Parent], Closed):-
+#     member([Parent, GrandParent], Closed),
+#     printSolution([Parent, GrandParent], Closed),
+#     write(State), nl.
 
 
