@@ -39,8 +39,12 @@ search(Open, Closed, Goal,Board,N):-
     getBestState(Open, [CurrentState,Parent,G,H,F], _), % Step 1
     CurrentState = Goal, % Step 2
     append(Closed, [[CurrentState,Parent,G,H,F]], NewClosed), % Step 5.1
+    NewClosed = [[Start|Rest] | Tail],
     write("Search is complete!"), nl,
-    write(NewClosed), !.
+    write(Start),nl,
+    Tail = [[Cell,Parent|Rest] | Tail2],
+    printSolution(Tail2,Start,Cell,Parent),!.
+
 
 search([], _, _, _,_) :-
     write("Search is complete!"), nl,
@@ -88,10 +92,10 @@ memberButBetter(Next, List, NewF):-
     min_list(Numbers, MinOldF),
     MinOldF > NewF.
 
-% If the node is already a member with greater cost, the new node will
-% be valid (and better) and it will be added to the children but the
-% old version will remain in the list for simplicity. In reality,
-% the old version should be removed or replaced.
+printSolution([],_,_,_):-!.
+printSolution([[Cell2,Parent2|Rest2]|Tail],Grandparent,Cell,Parent):-
+    (Parent2 = Cell , Grandparent = Parent ->  write(Cell),nl),
+    printSolution(Tail,Cell,Cell2,Parent2).
 
 
 
