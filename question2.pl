@@ -39,13 +39,10 @@ search(Open, Closed, Goal,Board,N):-
     getBestState(Open, [CurrentState,Parent,G,H,F], _), % Step 1
     CurrentState = Goal, % Step 2
     append(Closed, [[CurrentState,Parent,G,H,F]], NewClosed), % Step 5.1
-    NewClosed = [[Start|Rest] | Tail],
     write("Search is complete!"), nl,
-    write(Start),nl,
-    Tail = [[Cell,Parent|Rest] | Tail2],
-    printSolution(Tail2,Start,Cell,Parent),!.
-
-
+    findSolution(NewClosed, Goal, Acc, Solution), 
+    printSolution(Solution), !.
+    
 search([], _, _, _,_) :-
     write("Search is complete!"), nl,
     write("No Path is found!"), !.
@@ -92,13 +89,13 @@ memberButBetter(Next, List, NewF):-
     min_list(Numbers, MinOldF),
     MinOldF > NewF.
 
-printSolution([],_,_,_):-!.
-printSolution([[Cell2,Parent2|Rest2]|Tail],Grandparent,Cell,Parent):-
-    (Parent2 = Cell , Grandparent = Parent ->  write(Cell),nl),
-    printSolution(Tail,Cell,Cell2,Parent2).
 
+findSolution(_, null, Solution, Solution).
+findSolution(List, Cell, Accum, Solution):-
+    member([Cell, Parent, _, _, _], List),
+    findSolution(List, Parent, [Cell|Accum], Solution).
 
-
-    
-
-
+printSolution([Cell]):- write(Cell), !.
+printSolution([Cell|Rest]) :-
+    write(Cell), write(' -> '),
+    printSolution(Rest).
